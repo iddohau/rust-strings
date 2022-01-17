@@ -1,0 +1,15 @@
+[package]
+name = "rust-strings"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rust_strings"
+path = "src/strings.rs"
+
+[[bin]]
+name = "rust-strings"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "3.0.8", features = ["derive"] }
