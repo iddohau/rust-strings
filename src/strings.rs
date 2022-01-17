@@ -1,24 +1,15 @@
 use std::error::Error;
-use std::fmt;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::iter::Iterator;
 use std::path::PathBuf;
 
+mod encodings;
+
+pub use encodings::Encoding;
+
 const DEFAULT_MIN_LENGTH: usize = 3;
 const DEFAULT_ENCODING: Encoding = Encoding::ASCII;
-
-#[derive(Debug)]
-pub enum Encoding {
-    ASCII,
-    UTF16LE,
-}
-
-impl fmt::Display for Encoding {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
 
 pub trait Config {
     fn consume<F>(&self, func: F) -> Option<Box<dyn Error>>
@@ -132,7 +123,7 @@ pub fn strings(
     let mut current_offset: Option<u64> = None;
     let mut strings_vector: Vec<(String, u64)> = Vec::new();
     let min_length = strings_config.get_min_length();
-    strings_config.consume(|offset: usize, c: u8| {
+    let err = strings_config.consume(|offset: usize, c: u8| {
         if is_printable_character(c) {
             if current_offset == None {
                 current_offset = Some(offset as u64);
@@ -146,6 +137,9 @@ pub fn strings(
             current_offset = None;
         }
     });
+    if let Some(err) = err {
+        return Err(err);
+    }
     if let Some(value) = current_offset {
         add_string_to_strings_list(&mut string, value, &mut strings_vector, min_length);
     }
