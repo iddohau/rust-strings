@@ -6,6 +6,7 @@ edition = "2021"
 [lib]
 name = "rust_strings"
 path = "src/strings.rs"
+crate-type = ["cdylib", "rlib"]
 
 [[bin]]
 name = "rust-strings"
@@ -13,3 +14,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "3.0.8", features = ["derive"] }
+pyo3 = { version = "0.15.1", features = ["extension-module"], optional = true }
+
+[features]
+python_bindings = ["pyo3"]
