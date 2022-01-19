@@ -1,5 +1,6 @@
 use std::fmt;
 use std::error::Error;
+use std::str::FromStr;
 
 #[derive(Debug)]
 pub enum Encoding {
@@ -32,8 +33,10 @@ impl EncodingNotFoundError {
 
 impl Error for EncodingNotFoundError {}
 
-impl Encoding {
-    pub fn from_str(encoding: &str) -> Result<Encoding, EncodingNotFoundError> {
+impl FromStr for Encoding {
+    type Err = EncodingNotFoundError;
+
+    fn from_str(encoding: &str) -> Result<Self, Self::Err> {
         let encoding: &str = &encoding.to_lowercase();
         match encoding {
             "utf16le" => Ok(Encoding::UTF16LE),

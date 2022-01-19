@@ -32,7 +32,7 @@ impl FileConfig {
 
     pub fn new(file_path: PathBuf) -> Self {
         FileConfig {
-            file_path: file_path,
+            file_path,
             min_length: DEFAULT_MIN_LENGTH,
             encoding: DEFAULT_ENCODING,
             buffer_size: FileConfig::DEFAULT_BUFFER_SIZE,
@@ -74,7 +74,7 @@ impl Config for FileConfig {
     }
 
     fn get_min_length(&self) -> usize {
-        return self.min_length;
+        self.min_length
     }
 }
 
@@ -87,7 +87,7 @@ pub struct BytesConfig {
 impl BytesConfig {
     pub fn new(bytes: Vec<u8>) -> Self {
         BytesConfig {
-            bytes: bytes,
+            bytes,
             min_length: DEFAULT_MIN_LENGTH,
             encoding: DEFAULT_ENCODING,
         }
@@ -114,7 +114,7 @@ impl Config for BytesConfig {
     }
 
     fn get_min_length(&self) -> usize {
-        return self.min_length;
+        self.min_length
     }
 }
 
@@ -145,7 +145,7 @@ pub fn strings(
     if let Some(value) = current_offset {
         add_string_to_strings_list(&mut string, value, &mut strings_vector, min_length);
     }
-    return Ok(strings_vector);
+    Ok(strings_vector)
 }
 
 fn add_string_to_strings_list(
@@ -160,5 +160,5 @@ fn add_string_to_strings_list(
 }
 
 fn is_printable_character(c: u8) -> bool {
-    return (c <= 126 && c >= 32) || (c >= 9 && c <= 13);
+    (32..=126).contains(&c) || (9..=13).contains(&c)
 }

@@ -1,7 +1,8 @@
 use clap::Parser;
+use rust_strings::{strings, Encoding, FileConfig};
 use std::path::{Path, PathBuf};
 use std::process::exit;
-use rust_strings::{strings, FileConfig, Encoding};
+use std::str::FromStr;
 
 #[derive(Parser, Debug)]
 #[clap(version = "1.0", author = "Iddo Hauschner", name = "rust-strings")]
@@ -14,7 +15,7 @@ struct Opts {
     min_length: usize,
     /// encoding of string
     #[clap(short, long, default_value = "ascii")]
-    encoding: String
+    encoding: String,
 }
 
 fn main() {
@@ -32,7 +33,9 @@ fn main() {
             exit(1);
         }
     };
-    let strings_config = FileConfig::new(file_path).with_min_length(options.min_length).with_encoding(encoding);
+    let strings_config = FileConfig::new(file_path)
+        .with_min_length(options.min_length)
+        .with_encoding(encoding);
     let strings_vector = strings(&strings_config).unwrap();
     for (string, offset) in strings_vector {
         println!("{}: {}", offset, string);

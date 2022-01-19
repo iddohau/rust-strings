@@ -3,6 +3,7 @@ use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use std::error::Error;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use crate::encodings::EncodingNotFoundError;
 use crate::{
@@ -71,7 +72,7 @@ fn strings(
     if let Err(error_message) = result {
         return Err(StringsException::new_err(format!("{}", error_message)));
     }
-    return Ok(result.unwrap());
+    Ok(result.unwrap())
 }
 
 #[pymodule]
