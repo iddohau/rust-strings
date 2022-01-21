@@ -1,8 +1,8 @@
+#![allow(clippy::needless_option_as_deref)]
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use std::error::Error;
-use std::path::PathBuf;
 use std::str::FromStr;
 
 use crate::encodings::EncodingNotFoundError;
@@ -40,7 +40,7 @@ impl From<EncodingNotFoundError> for PyErr {
     text_signature = "(file_path: str = None, bytes: bytes = None, min_length: int = 3, encoding: str = \"ascii\", buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
 )]
 fn strings(
-    file_path: Option<PathBuf>,
+    file_path: Option<&str>,
     bytes: Option<Vec<u8>>,
     min_length: usize,
     encoding: &str,

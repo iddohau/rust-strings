@@ -2,33 +2,32 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::iter::Iterator;
-use std::path::PathBuf;
 
-pub use crate::encodings::Encoding;
-
-
+use crate::encodings::Encoding;
 
 const DEFAULT_MIN_LENGTH: usize = 3;
 const DEFAULT_ENCODING: Encoding = Encoding::ASCII;
 
 pub trait Config {
+    #[doc(hidden)]
     fn consume<F>(&self, func: F) -> Option<Box<dyn Error>>
     where
         F: FnMut(usize, u8);
+    #[doc(hidden)]
     fn get_min_length(&self) -> usize;
 }
 
-pub struct FileConfig {
-    pub file_path: PathBuf,
+pub struct FileConfig<'a> {
+    pub file_path: &'a str,
     pub min_length: usize,
     pub encoding: Encoding,
     pub buffer_size: usize,
 }
 
-impl FileConfig {
+impl <'a>FileConfig<'a> {
     const DEFAULT_BUFFER_SIZE: usize = 1024 * 1024;
 
-    pub fn new(file_path: PathBuf) -> Self {
+    pub fn new(file_path: &'a str) -> Self {
         FileConfig {
             file_path,
             min_length: DEFAULT_MIN_LENGTH,
@@ -53,12 +52,12 @@ impl FileConfig {
     }
 }
 
-impl Config for FileConfig {
+impl <'a>Config for FileConfig<'a> {
     fn consume<F>(&self, mut func: F) -> Option<Box<dyn Error>>
     where
         F: FnMut(usize, u8),
     {
-        let file_result = File::open(self.file_path.to_str().unwrap());
+        let file_result = File::open(&self.file_path);
         if let Err(err) = file_result {
             return Some(Box::new(err));
         }
@@ -116,8 +115,19 @@ impl Config for BytesConfig {
     }
 }
 
-pub fn strings(
-    strings_config: &(impl Config + 'static),
+/// Extract strings from binary data.
+/// 
+/// Examples:
+/// ```
+/// let config = FileConfig::new("/bin/ls").with_min_length(5);
+/// let extracted_strings = strings(&config);
+/// 
+/// let config = BytesConfig::new(vec![116, 101, 115, 116, 0, 0]);
+/// let extracted_strings = strings(&config);
+/// // [("test", 0)]
+/// ```
+pub fn strings<T: Config>(
+    strings_config: &T,
 ) -> Result<Vec<(String, u64)>, Box<dyn Error>> {
     let mut string = String::with_capacity(strings_config.get_min_length());
     let mut current_offset: Option<u64> = None;

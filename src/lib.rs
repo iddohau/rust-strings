@@ -1,3 +1,8 @@
+//! # Rust Strings
+//! 
+//! `rust_strings` is a library to extract ascii strings from binary data.
+//! It is similar to the command `strings`.
+
 mod strings;
 mod encodings;
 
