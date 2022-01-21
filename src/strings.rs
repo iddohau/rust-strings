@@ -4,11 +4,9 @@ use std::io::{BufReader, Read};
 use std::iter::Iterator;
 use std::path::PathBuf;
 
-mod encodings;
-pub use encodings::{Encoding, EncodingNotFoundError};
+pub use crate::encodings::Encoding;
 
-#[cfg(feature = "python_bindings")]
-mod python_bindings;
+
 
 const DEFAULT_MIN_LENGTH: usize = 3;
 const DEFAULT_ENCODING: Encoding = Encoding::ASCII;

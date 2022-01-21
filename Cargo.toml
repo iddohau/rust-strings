@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 name = "rust_strings"
-path = "src/strings.rs"
+path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [[bin]]
