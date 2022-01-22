@@ -119,6 +119,8 @@ impl Config for BytesConfig {
 /// 
 /// Examples:
 /// ```
+/// use rust_strings::{FileConfig, BytesConfig, strings};
+/// 
 /// let config = FileConfig::new("/bin/ls").with_min_length(5);
 /// let extracted_strings = strings(&config);
 /// 
