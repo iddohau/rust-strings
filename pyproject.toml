@@ -1,0 +1,30 @@
+[build-system]
+requires = ["maturin>=0.12,<0.13"]
+build-backend = "maturin"
+
+
+[project]
+name = "rust-strings"
+version = "0.1.0"
+description = "Extract strings from binary data"
+authors = [
+    {email = "iddohau@gmail.com", name = "Iddo Hauschner"},
+]
+maintainers = [
+    {email = "iddohau@gmail.com", name = "Iddo Hauschner"},
+]
+license = {file = "LICENSE.txt"}
+readme = "README.md"
+requires-python = ">=3.6"
+homepage = "https://github.com/iddohau/rust-strings"
+repository = "https://github.com/iddohau/rust-strings"
+documentation = "https://github.com/iddohau/rust-strings"
+
+keywords = ["strings"]
+
+classifiers = [
+    "Topic :: Software Development"
+]
+
+[dev-dependencies]
+pytest = "^6.2.5"
