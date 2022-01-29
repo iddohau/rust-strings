@@ -58,7 +58,7 @@ macro_rules! consume {
 macro_rules! get_string {
     () => {
         fn get_string(&mut self) -> Option<(u64, String)> {
-            if self.current_string.len() > self.min_length {
+            if self.current_string.len() >= self.min_length {
                 let current_string = take(&mut self.current_string);
                 let string = self.encode(current_string);
                 return Some((self.offset, string));

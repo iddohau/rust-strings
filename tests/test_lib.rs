@@ -1,4 +1,4 @@
-use rust_strings::{BytesConfig, strings, FileConfig};
+use rust_strings::{BytesConfig, strings, FileConfig, Encoding};
 use tempfile::NamedTempFile;
 use std::io::Write;
 
@@ -44,6 +44,20 @@ fn test_file_config() {
 
     let path = file.path().to_str().unwrap();
     let config = FileConfig::new(path);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 0)], extracted);
+}
+
+#[test]
+fn test_utf16le() {
+    let config = BytesConfig::new(b"t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::UTF16LE);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 0)], extracted);
+}
+
+#[test]
+fn test_utf16be() {
+    let config = BytesConfig::new(b"\x00t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::UTF16BE);
     let extracted = strings(&config).unwrap();
     assert_eq!(vec![(String::from("test"), 0)], extracted);
 }
