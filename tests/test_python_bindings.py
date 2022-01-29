@@ -33,3 +33,14 @@ def test_file(temp_file: Path):
     temp_file.write_bytes(b"test\x00")
     extracted = rust_strings.strings(file_path=temp_file)
     assert extracted == [("test", 0)]
+
+
+def test_file_as_str(temp_file: Path):
+    temp_file.write_bytes(b"test\x00")
+    extracted = rust_strings.strings(file_path=str(temp_file))
+    assert extracted == [("test", 0)]
+
+
+def test_multiple_encodings():
+    extracted = rust_strings.strings(bytes=b"ascii\x01t\x00e\x00s\x00t\x00\x00\x00", encodings=["ascii", "utf-16le"])
+    assert extracted == [("ascii", 0), ("test", 6)]

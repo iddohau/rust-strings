@@ -43,6 +43,8 @@ impl FromStr for Encoding {
             "utf-16le" => Ok(Encoding::UTF16LE),
             "utf-16be" => Ok(Encoding::UTF16BE),
             "ascii" => Ok(Encoding::ASCII),
+            "utf8" => Ok(Encoding::ASCII),
+            "utf-8" => Ok(Encoding::ASCII),
             _ => Err(EncodingNotFoundError::new(encoding.to_owned()))
         }
     }

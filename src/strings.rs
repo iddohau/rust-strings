@@ -45,6 +45,11 @@ macro_rules! impl_default {
             self.encodings.push(encoding);
             self
         }
+
+        pub fn with_encodings(mut self, encodings: Vec<Encoding>) -> Self {
+            self.encodings = encodings;
+            self
+        }
     };
 }
 

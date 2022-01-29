@@ -1,8 +1,8 @@
-#![allow(clippy::needless_option_as_deref)]
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use std::error::Error;
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use crate::encodings::EncodingNotFoundError;
@@ -33,17 +33,17 @@ impl From<EncodingNotFoundError> for PyErr {
     file_path = "None",
     bytes = "None",
     min_length = "3",
-    encoding = "\"ascii\"",
+    encodings = "vec![\"ascii\"]",
     buffer_size = "1024 * 1024"
 )]
 #[pyo3(
     text_signature = "(file_path: str = None, bytes: bytes = None, min_length: int = 3, encoding: str = \"ascii\", buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
 )]
 fn strings(
-    file_path: Option<&str>,
+    file_path: Option<PathBuf>,
     bytes: Option<Vec<u8>>,
     min_length: usize,
-    encoding: &str,
+    encodings: Vec<&str>,
     buffer_size: usize,
 ) -> PyResult<Vec<(String, u64)>> {
     if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
@@ -51,18 +51,21 @@ fn strings(
             "You can't specify file_path and bytes",
         ));
     }
-    let encoding = RustEncoding::from_str(encoding)?;
+    let encodings = encodings
+        .iter()
+        .map(|e| RustEncoding::from_str(e))
+        .collect::<Result<Vec<RustEncoding>, _>>()?;
     let result: Result<Vec<(String, u64)>, Box<dyn Error>>;
     if let Some(file_path) = file_path {
-        let strings_config = RustFileConfig::new(file_path)
+        let strings_config = RustFileConfig::new(file_path.to_str().unwrap())
             .with_min_length(min_length)
-            .with_encoding(encoding)
+            .with_encodings(encodings)
             .with_buffer_size(buffer_size);
         result = r_strings(&strings_config);
     } else if let Some(bytes) = bytes {
         let strings_config = RustBytesConfig::new(bytes)
             .with_min_length(min_length)
-            .with_encoding(encoding);
+            .with_encodings(encodings);
         result = r_strings(&strings_config);
     } else {
         return Err(StringsException::new_err(
