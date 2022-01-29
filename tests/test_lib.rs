@@ -61,3 +61,10 @@ fn test_utf16be() {
     let extracted = strings(&config).unwrap();
     assert_eq!(vec![(String::from("test"), 0)], extracted);
 }
+
+#[test]
+fn test_multiple_encodings() {
+    let config = BytesConfig::new(b"ascii\x01t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::ASCII).with_encoding(Encoding::UTF16LE);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("ascii"), 0), (String::from("test"), 6)], extracted);
+}
