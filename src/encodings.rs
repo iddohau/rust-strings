@@ -2,10 +2,11 @@ use std::fmt;
 use std::error::Error;
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Encoding {
     ASCII,
     UTF16LE,
+    UTF16BE,
 }
 
 impl fmt::Display for Encoding {
@@ -39,7 +40,8 @@ impl FromStr for Encoding {
     fn from_str(encoding: &str) -> Result<Self, Self::Err> {
         let encoding: &str = &encoding.to_lowercase();
         match encoding {
-            "utf16le" => Ok(Encoding::UTF16LE),
+            "utf-16le" => Ok(Encoding::UTF16LE),
+            "utf-16be" => Ok(Encoding::UTF16BE),
             "ascii" => Ok(Encoding::ASCII),
             _ => Err(EncodingNotFoundError::new(encoding.to_owned()))
         }

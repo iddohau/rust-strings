@@ -4,6 +4,7 @@ use std::io::{BufReader, Read};
 use std::iter::Iterator;
 
 use crate::encodings::Encoding;
+use crate::strings_extractor::new_strings_extractor;
 
 const DEFAULT_MIN_LENGTH: usize = 3;
 const DEFAULT_ENCODING: Encoding = Encoding::ASCII;
@@ -15,6 +16,8 @@ pub trait Config {
         F: FnMut(usize, u8);
     #[doc(hidden)]
     fn get_min_length(&self) -> usize;
+    #[doc(hidden)]
+    fn get_encoding(&self) -> Encoding;
 }
 
 pub struct FileConfig<'a> {
@@ -73,6 +76,10 @@ impl <'a>Config for FileConfig<'a> {
     fn get_min_length(&self) -> usize {
         self.min_length
     }
+
+    fn get_encoding(&self) -> Encoding {
+        self.encoding
+    }
 }
 
 pub struct BytesConfig {
@@ -113,6 +120,10 @@ impl Config for BytesConfig {
     fn get_min_length(&self) -> usize {
         self.min_length
     }
+
+    fn get_encoding(&self) -> Encoding {
+        self.encoding
+    }
 }
 
 /// Extract strings from binary data.
@@ -131,44 +142,21 @@ impl Config for BytesConfig {
 pub fn strings<T: Config>(
     strings_config: &T,
 ) -> Result<Vec<(String, u64)>, Box<dyn Error>> {
-    let mut string = String::with_capacity(strings_config.get_min_length());
-    let mut current_offset: Option<u64> = None;
     let mut strings_vector: Vec<(String, u64)> = Vec::new();
     let min_length = strings_config.get_min_length();
+    let mut strings_extractor = new_strings_extractor(strings_config.get_encoding(), min_length);
     let err = strings_config.consume(|offset: usize, c: u8| {
-        if is_printable_character(c) {
-            if current_offset == None {
-                current_offset = Some(offset as u64);
-            }
-            string.push(c as char);
-        } else {
-            if let Some(value) = current_offset {
-                add_string_to_strings_list(&mut string, value, &mut strings_vector, min_length);
-            }
-            string.clear();
-            current_offset = None;
+        if strings_extractor.can_consume(c) {
+            strings_extractor.consume(offset as u64, c);
+        } else if let Some((offset, string)) = strings_extractor.get_string() {
+            strings_vector.push((string, offset));
         }
     });
     if let Some(err) = err {
         return Err(err);
     }
-    if let Some(value) = current_offset {
-        add_string_to_strings_list(&mut string, value, &mut strings_vector, min_length);
+    if let Some((offset, string)) = strings_extractor.get_string() {
+        strings_vector.push((string, offset));
     }
     Ok(strings_vector)
-}
-
-fn add_string_to_strings_list(
-    string: &mut String,
-    offset: u64,
-    strings_vector: &mut Vec<(String, u64)>,
-    min_length: usize,
-) {
-    if string.len() >= min_length {
-        strings_vector.push((string.to_string(), offset));
-    }
-}
-
-fn is_printable_character(c: u8) -> bool {
-    (32..=126).contains(&c) || (9..=13).contains(&c)
 }

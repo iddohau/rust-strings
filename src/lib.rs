@@ -5,6 +5,7 @@
 
 mod strings;
 mod encodings;
+mod strings_extractor;
 
 pub use strings::{BytesConfig, Config, FileConfig, strings};
 pub use encodings::{Encoding, EncodingNotFoundError};
