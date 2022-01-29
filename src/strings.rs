@@ -137,7 +137,7 @@ impl Config for BytesConfig {
 /// 
 /// let config = BytesConfig::new(vec![116, 101, 115, 116, 0, 0]);
 /// let extracted_strings = strings(&config);
-/// // [("test", 0)]
+/// assert_eq!(vec![(String::from("test"), 0)], extracted_strings.unwrap());
 /// ```
 pub fn strings<T: Config>(
     strings_config: &T,
