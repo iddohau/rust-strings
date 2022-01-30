@@ -30,7 +30,13 @@ rust-strings = "0.1.0"
 import rust_strings
 
 # Get all ascii strings from file with minimun length of string
-rust_strings.strings(file_path="/bin/ls", min_length=5)
+rust_strings.strings(file_path="/bin/ls", min_length=3)
+# [('ELF', 1),
+#  ('/lib64/ld-linux-x86-64.so.2', 680),
+#  ('GNU', 720),
+#  ('.<O', 725),
+#  ('GNU', 756),
+# ...]
 
 # You can also set buffer size when reading from file (default is 1mb)
 rust_strings.strings(file_path="/bin/ls", min_length=5, buffer_size=1024)
