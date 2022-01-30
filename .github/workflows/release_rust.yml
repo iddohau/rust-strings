@@ -1,0 +1,27 @@
+on:
+  push:
+    tags:
+      - "v**"
+
+name: Rust release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      
+      - uses: actions-rs/cargo@v1
+        name: login
+        with:
+          command: login
+          args: ${{ secrets.CRATES_TOKEN }}
+
+      - uses: actions-rs/cargo@v1
+        name: publish
+        with:
+          command: publish
