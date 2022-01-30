@@ -153,7 +153,7 @@ impl Config for BytesConfig {
 ///     .with_encoding(Encoding::UTF16LE);
 /// let extracted_strings = strings(&config);
 ///
-/// let config = BytesConfig::new(vec![116, 101, 115, 116, 0, 0]);
+/// let config = BytesConfig::new(b"test\x00".to_vec());
 /// let extracted_strings = strings(&config);
 /// assert_eq!(vec![(String::from("test"), 0)], extracted_strings.unwrap());
 /// ```

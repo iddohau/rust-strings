@@ -1,27 +1,76 @@
-# Rust Strings
+# rust-strings
 
-rust-strings is a rust library for extracting strings from binary data. \
-It also have python bindings.
+`rust-strings` is a Rust library for extracting strings from binary data. \
+It also have Python bindings.
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+### Python
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install `rust-strings`.
 
 ```bash
 pip install rust-strings
 ```
 
+### Rust
+
+`rust-strings` is available on [crates.io](https://crates.io/crates/rust-strings) and can be included in your Cargo enabled project like this:
+
+```bash
+[dependencies]
+rust-strings = "0.1.0"
+```
+
 ## Usage
+
+### Python
 
 ```python
 import rust_strings
 
-# returns list of strings with their offsets
-rust_strings.strings(bytes=b"test\x00\x00", min_length=4, encoding="ascii")
-# [("test", 0)]
+# Get all ascii strings from file with minimun length of string
+rust_strings.strings(file_path="/bin/ls", min_length=5)
 
-# you can also extract from file
-rust_strings.strings(file_path="/bin/ls", min_length=4, encoding="ascii")
+# You can also set buffer size when reading from file (default is 1mb)
+rust_strings.strings(file_path="/bin/ls", min_length=5, buffer_size=1024)
+
+# You can set encoding if you need (default is 'ascii', options are 'utf-16le', 'utf-16be')
+rust_strings.strings(file_path=r"C:\Windows\notepad.exe", min_length=5, encodings=["utf-16le"])
+
+# You can set multiple encoding
+rust_strings.strings(file_path=r"C:\Windows\notepad.exe", min_length=5, encodings=["ascii", "utf-16le"])
+
+# You can also pass bytes instead of file_path
+rust_strings.strings(bytes=b"test\x00\x00", min_length=4, encodings=["ascii"])
+# [("test", 0)]
+```
+
+### Rust
+
+Full documentation available in [docs.rs](https://docs.rs/rust-strings)
+
+```rust
+use rust_strings::{FileConfig, BytesConfig, strings, Encoding};
+let config = FileConfig::new("/bin/ls").with_min_length(5);
+let extracted_strings = strings(&config);
+
+// Extract utf16le strings
+let config = FileConfig::new("C:\\Windows\\notepad.exe")
+    .with_min_length(15)
+    .with_encoding(Encoding::UTF16LE);
+let extracted_strings = strings(&config);
+
+// Extract ascii and utf16le strings
+let config = FileConfig::new("C:\\Windows\\notepad.exe")
+    .with_min_length(15)
+    .with_encoding(Encoding::ASCII)
+    .with_encoding(Encoding::UTF16LE);
+let extracted_strings = strings(&config);
+
+let config = BytesConfig::new(b"test\x00".to_vec());
+let extracted_strings = strings(&config);
+assert_eq!(vec![(String::from("test"), 0)], extracted_strings.unwrap());
 ```
 
 ## Contributing
