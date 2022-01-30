@@ -11,7 +11,7 @@ repository = "https://github.com/iddohau/rust-strings"
 homepage = "https://github.com/iddohau/rust-strings"
 keywords = ["strings", "encoding"]
 categories = ["encoding"]
-include = ["/README.md", "/src"]
+include = ["/LICENSE.txt", "/README.md", "/src"]
 
 [lib]
 name = "rust_strings"
