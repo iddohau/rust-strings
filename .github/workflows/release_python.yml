@@ -17,6 +17,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
           architecture: x64
+      - run: pip install cffi
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -59,6 +60,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
           architecture: ${{ matrix.target }}
+      - run: pip install cffi
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -93,6 +95,7 @@ jobs:
       with:
         python-version: ${{ matrix.python_version }}
         architecture: x64
+    - run: pip install cffi
     - name: Build Wheels
       uses: messense/maturin-action@v1
       with:
@@ -123,6 +126,7 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python_version }}
+    - run: pip install cffi
     - name: Build Wheels
       uses: messense/maturin-action@v1
       with:
