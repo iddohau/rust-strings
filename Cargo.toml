@@ -3,7 +3,6 @@ name = "rust-strings"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-license-file = "LICENSE.txt"
 authors = ["iddohau@gmail.com"]
 description = "`rust-strings` is a library to extract ascii strings from binary data"
 readme = "README.md"
