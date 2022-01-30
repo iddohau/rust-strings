@@ -24,11 +24,11 @@ impl From<EncodingNotFoundError> for PyErr {
 /// :param file_path: path to file (can't be with bytes option)
 /// :param bytes: bytes (can't be with file_path option)
 /// :param min_length: strings minimum length
-/// :param encoding: strings encoding (default is ascii)
+/// :param encoding: strings encoding (default is ["ascii"])
 /// :param buffer_size: the buffer size to read the file (relevant only to file_path option)
 /// :return: list of tuples of string and offset
 /// :raises: raise StringsException if there is any error during string extraction
-///          raise EncodingNotFoundException if the function got an unsupported enconding
+///          raise EncodingNotFoundException if the function got an unsupported encondings
 #[pyfunction(
     file_path = "None",
     bytes = "None",
@@ -37,7 +37,7 @@ impl From<EncodingNotFoundError> for PyErr {
     buffer_size = "1024 * 1024"
 )]
 #[pyo3(
-    text_signature = "(file_path: str = None, bytes: bytes = None, min_length: int = 3, encoding: str = \"ascii\", buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
+    text_signature = "(file_path: Optional[str] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
 )]
 fn strings(
     file_path: Option<PathBuf>,
