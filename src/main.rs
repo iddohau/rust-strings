@@ -25,7 +25,7 @@ fn main() {
     let file_path = options.file_path;
     let path: &Path = Path::new(&file_path);
     if !path.is_file() {
-            eprintln!("File does not exists!");
+        eprintln!("File does not exists!");
         exit(1);
     }
     let encoding = match Encoding::from_str(&options.encoding) {

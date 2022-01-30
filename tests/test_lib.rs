@@ -1,6 +1,6 @@
-use rust_strings::{BytesConfig, strings, FileConfig, Encoding};
-use tempfile::NamedTempFile;
+use rust_strings::{strings, BytesConfig, Encoding, FileConfig};
 use std::io::Write;
+use tempfile::NamedTempFile;
 
 #[test]
 fn test_bytes_config() {
@@ -34,7 +34,10 @@ fn test_bytes_config_min_length() {
 fn test_bytes_config_multiple_strings() {
     let config = BytesConfig::new(vec![116, 101, 115, 116, 0, 0, 116, 101, 115]).with_min_length(3);
     let extracted = strings(&config).unwrap();
-    assert_eq!(vec![(String::from("test"), 0), (String::from("tes"), 6)], extracted);
+    assert_eq!(
+        vec![(String::from("test"), 0), (String::from("tes"), 6)],
+        extracted
+    );
 }
 
 #[test]
@@ -50,21 +53,28 @@ fn test_file_config() {
 
 #[test]
 fn test_utf16le() {
-    let config = BytesConfig::new(b"t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::UTF16LE);
+    let config =
+        BytesConfig::new(b"t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::UTF16LE);
     let extracted = strings(&config).unwrap();
     assert_eq!(vec![(String::from("test"), 0)], extracted);
 }
 
 #[test]
 fn test_utf16be() {
-    let config = BytesConfig::new(b"\x00t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::UTF16BE);
+    let config = BytesConfig::new(b"\x00t\x00e\x00s\x00t\x00\x00\x00".to_vec())
+        .with_encoding(Encoding::UTF16BE);
     let extracted = strings(&config).unwrap();
     assert_eq!(vec![(String::from("test"), 0)], extracted);
 }
 
 #[test]
 fn test_multiple_encodings() {
-    let config = BytesConfig::new(b"ascii\x01t\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::ASCII).with_encoding(Encoding::UTF16LE);
+    let config = BytesConfig::new(b"ascii\x01t\x00e\x00s\x00t\x00\x00\x00".to_vec())
+        .with_encoding(Encoding::ASCII)
+        .with_encoding(Encoding::UTF16LE);
     let extracted = strings(&config).unwrap();
-    assert_eq!(vec![(String::from("ascii"), 0), (String::from("test"), 6)], extracted);
+    assert_eq!(
+        vec![(String::from("ascii"), 0), (String::from("test"), 6)],
+        extracted
+    );
 }

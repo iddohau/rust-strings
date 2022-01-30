@@ -1,5 +1,5 @@
-use std::fmt;
 use std::error::Error;
+use std::fmt;
 use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone)]
@@ -17,7 +17,7 @@ impl fmt::Display for Encoding {
 
 #[derive(Debug)]
 pub struct EncodingNotFoundError {
-    encoding: String
+    encoding: String,
 }
 
 impl fmt::Display for EncodingNotFoundError {
@@ -45,7 +45,7 @@ impl FromStr for Encoding {
             "ascii" => Ok(Encoding::ASCII),
             "utf8" => Ok(Encoding::ASCII),
             "utf-8" => Ok(Encoding::ASCII),
-            _ => Err(EncodingNotFoundError::new(encoding.to_owned()))
+            _ => Err(EncodingNotFoundError::new(encoding.to_owned())),
         }
     }
-} 
+}

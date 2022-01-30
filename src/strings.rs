@@ -139,13 +139,13 @@ impl Config for BytesConfig {
 ///
 /// let config = FileConfig::new("/bin/ls").with_min_length(5);
 /// let extracted_strings = strings(&config);
-/// 
+///
 /// // Extract utf16le strings
 /// let config = FileConfig::new("C:\\Windows\\notepad.exe")
 ///     .with_min_length(15)
 ///     .with_encoding(Encoding::UTF16LE);
 /// let extracted_strings = strings(&config);
-/// 
+///
 /// // Extract ascii and utf16le strings
 /// let config = FileConfig::new("C:\\Windows\\notepad.exe")
 ///     .with_min_length(15)
