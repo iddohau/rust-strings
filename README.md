@@ -1,5 +1,10 @@
 # rust-strings
 
+[![CI](https://github.com/iddohau/rust-strings/workflows/Rust%20Lint%20%26%20Test/badge.svg?branch=main)](https://github.com/iddohau/rust-strings/actions?query=branch=main)
+![License](https://img.shields.io/github/license/iddohau/rust-strings)
+![Crates.io](https://img.shields.io/crates/v/rust-strings)
+[![PyPI](https://img.shields.io/pypi/v/rust-strings.svg)](https://pypi.org/project/rust-strings)
+
 `rust-strings` is a Rust library for extracting strings from binary data. \
 It also have Python bindings.
 
