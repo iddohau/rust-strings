@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from uuid import uuid4
@@ -42,5 +43,22 @@ def test_file_as_str(temp_file: Path):
 
 
 def test_multiple_encodings():
-    extracted = rust_strings.strings(bytes=b"ascii\x01t\x00e\x00s\x00t\x00\x00\x00", encodings=["ascii", "utf-16le"])
+    extracted = rust_strings.strings(
+        bytes=b"ascii\x01t\x00e\x00s\x00t\x00\x00\x00", encodings=["ascii", "utf-16le"]
+    )
     assert extracted == [("ascii", 0), ("test", 6)]
+
+
+def test_json_dump(temp_file: Path):
+    rust_strings.dump_strings(temp_file, bytes=b'\x00\x00test"\n\tmore\x00\x00')
+    assert json.loads(temp_file.read_text()) == [['test"\n\tmore', 2]]
+
+
+def test_json_dump_multiple_strings(temp_file: Path):
+    rust_strings.dump_strings(
+        temp_file, bytes=b'\x00\x00test"\n\tmore\x00\x00more text over here'
+    )
+    assert json.loads(temp_file.read_text()) == [
+        ['test"\n\tmore', 2],
+        ["more text over here", 15],
+    ]

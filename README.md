@@ -55,6 +55,11 @@ rust_strings.strings(file_path=r"C:\Windows\notepad.exe", min_length=5, encoding
 # You can also pass bytes instead of file_path
 rust_strings.strings(bytes=b"test\x00\x00", min_length=4, encodings=["ascii"])
 # [("test", 0)]
+
+# You can also dump to json file
+rust_strings.dump_strings("strings.json", bytes=b"test\x00\x00", min_length=4, encodings=["ascii"])
+# `strings.json` content:
+# [["test", 0]]
 ```
 
 ### Rust
@@ -62,7 +67,7 @@ rust_strings.strings(bytes=b"test\x00\x00", min_length=4, encodings=["ascii"])
 Full documentation available in [docs.rs](https://docs.rs/rust-strings)
 
 ```rust
-use rust_strings::{FileConfig, BytesConfig, strings, Encoding};
+use rust_strings::{FileConfig, BytesConfig, strings, dump_strings, Encoding};
 let config = FileConfig::new("/bin/ls").with_min_length(5);
 let extracted_strings = strings(&config);
 
@@ -82,6 +87,10 @@ let extracted_strings = strings(&config);
 let config = BytesConfig::new(b"test\x00".to_vec());
 let extracted_strings = strings(&config);
 assert_eq!(vec![(String::from("test"), 0)], extracted_strings.unwrap());
+
+// Dump strings into `strings.json` file.
+let config = BytesConfig::new(b"test\x00".to_vec());
+dump_strings(&config, PathBuf::from("strings.json"));
 ```
 
 ## Contributing

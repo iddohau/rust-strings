@@ -1,5 +1,5 @@
-use rust_strings::{strings, BytesConfig, Encoding, FileConfig};
-use std::io::Write;
+use rust_strings::{dump_strings, strings, BytesConfig, Encoding, FileConfig};
+use std::io::{Read, Write};
 use tempfile::NamedTempFile;
 
 #[test]
@@ -76,5 +76,32 @@ fn test_multiple_encodings() {
     assert_eq!(
         vec![(String::from("ascii"), 0), (String::from("test"), 6)],
         extracted
+    );
+}
+
+#[test]
+fn test_json_dump() {
+    let file = NamedTempFile::new().unwrap();
+    let config = BytesConfig::new(b"\x00\x00test\"\n\tmore\x00\x00".to_vec());
+
+    let path = file.path().to_path_buf();
+    dump_strings(&config, path).unwrap();
+    let mut string = String::new();
+    file.as_file().read_to_string(&mut string).unwrap();
+    assert_eq!(string, String::from("[[\"test\\\"\\n\\tmore\",2]]"));
+}
+
+#[test]
+fn test_json_dump_multiple_strings() {
+    let file = NamedTempFile::new().unwrap();
+    let config = BytesConfig::new(b"\x00\x00test\"\n\tmore\x00\x00more text over here".to_vec());
+
+    let path = file.path().to_path_buf();
+    dump_strings(&config, path).unwrap();
+    let mut string = String::new();
+    file.as_file().read_to_string(&mut string).unwrap();
+    assert_eq!(
+        string,
+        String::from("[[\"test\\\"\\n\\tmore\",2],[\"more text over here\",15]]")
     );
 }

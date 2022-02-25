@@ -1,19 +1,25 @@
+use std::cell::RefCell;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::iter::Iterator;
+use std::path::PathBuf;
+use std::rc::Rc;
+use std::result::Result;
 
 use crate::encodings::Encoding;
 use crate::strings_extractor::{new_strings_extractor, StringsExtractor};
+use crate::strings_writer::{JsonWriter, StringWriter, VectorWriter};
+use crate::ErrorResult;
 
 const DEFAULT_MIN_LENGTH: usize = 3;
 const DEFAULT_ENCODINGS: [Encoding; 1] = [Encoding::ASCII];
 
 pub trait Config {
     #[doc(hidden)]
-    fn consume<F>(&self, func: F) -> Option<Box<dyn Error>>
+    fn consume<F>(&self, func: F) -> ErrorResult
     where
-        F: FnMut(usize, u8);
+        F: FnMut(usize, u8) -> ErrorResult;
     #[doc(hidden)]
     fn get_min_length(&self) -> usize;
     #[doc(hidden)]
@@ -81,21 +87,21 @@ impl<'a> FileConfig<'a> {
 }
 
 impl<'a> Config for FileConfig<'a> {
-    fn consume<F>(&self, mut func: F) -> Option<Box<dyn Error>>
+    fn consume<F>(&self, mut func: F) -> ErrorResult
     where
-        F: FnMut(usize, u8),
+        F: FnMut(usize, u8) -> ErrorResult,
     {
         let file_result = File::open(&self.file_path);
         if let Err(err) = file_result {
-            return Some(Box::new(err));
+            return Err(Box::new(err));
         }
         let file = file_result.unwrap();
         let buf_reader = BufReader::with_capacity(self.buffer_size, file);
         buf_reader
             .bytes()
             .enumerate()
-            .for_each(|(i, b)| func(i, b.unwrap()));
-        None
+            .try_for_each(|(i, b)| func(i, b.unwrap()))?;
+        Ok(())
     }
 
     impl_config!();
@@ -120,15 +126,50 @@ impl BytesConfig {
 }
 
 impl Config for BytesConfig {
-    fn consume<F>(&self, mut func: F) -> Option<Box<dyn Error>>
+    fn consume<F>(&self, mut func: F) -> ErrorResult
     where
-        F: FnMut(usize, u8),
+        F: FnMut(usize, u8) -> ErrorResult,
     {
-        self.bytes.iter().enumerate().for_each(|(i, b)| func(i, *b));
-        None
+        self.bytes
+            .iter()
+            .enumerate()
+            .try_for_each(|(i, b)| func(i, *b))?;
+        Ok(())
     }
 
     impl_config!();
+}
+
+fn _strings<T: Config, W: StringWriter>(
+    strings_config: &T,
+    strings_writer: Rc<RefCell<W>>,
+) -> ErrorResult {
+    let min_length = strings_config.get_min_length();
+    let mut strings_extractors: Vec<Box<dyn StringsExtractor>> = strings_config
+        .get_encodings()
+        .iter()
+        .map(|e| new_strings_extractor(strings_writer.clone(), *e, min_length))
+        .collect();
+    strings_config.consume(|offset: usize, c: u8| {
+        strings_extractors
+            .iter_mut()
+            .try_for_each(|strings_extractor| -> ErrorResult {
+                if strings_extractor.can_consume(c) {
+                    strings_extractor.consume(offset as u64, c)?;
+                } else {
+                    strings_extractor.stop_consume()?;
+                }
+                Ok(())
+            })?;
+        Ok(())
+    })?;
+    strings_extractors
+        .iter_mut()
+        .try_for_each(|strings_extractor| -> ErrorResult {
+            strings_extractor.stop_consume()?;
+            Ok(())
+        })?;
+    Ok(())
 }
 
 /// Extract strings from binary data.
@@ -158,29 +199,25 @@ impl Config for BytesConfig {
 /// assert_eq!(vec![(String::from("test"), 0)], extracted_strings.unwrap());
 /// ```
 pub fn strings<T: Config>(strings_config: &T) -> Result<Vec<(String, u64)>, Box<dyn Error>> {
-    let mut strings_vector: Vec<(String, u64)> = Vec::new();
-    let min_length = strings_config.get_min_length();
-    let mut strings_extractors: Vec<Box<dyn StringsExtractor>> = strings_config
-        .get_encodings()
-        .iter()
-        .map(|e| new_strings_extractor(*e, min_length))
-        .collect();
-    let err = strings_config.consume(|offset: usize, c: u8| {
-        strings_extractors.iter_mut().for_each(|strings_extractor| {
-            if strings_extractor.can_consume(c) {
-                strings_extractor.consume(offset as u64, c);
-            } else if let Some((offset, string)) = strings_extractor.get_string() {
-                strings_vector.push((string, offset));
-            }
-        });
-    });
-    if let Some(err) = err {
-        return Err(err);
-    }
-    strings_extractors.iter_mut().for_each(|strings_extractor| {
-        if let Some((offset, string)) = strings_extractor.get_string() {
-            strings_vector.push((string, offset));
-        }
-    });
-    Ok(strings_vector)
+    let vector_writer = Rc::new(RefCell::new(VectorWriter::new()));
+    _strings(strings_config, vector_writer.clone())?;
+    Ok(vector_writer.clone().borrow_mut().get_strings())
+}
+
+/// Dump strings from binary data to json file.
+///
+/// Examples:
+/// ```
+/// use std::path::PathBuf;
+/// use rust_strings::{BytesConfig, dump_strings};
+///
+/// let config = BytesConfig::new(b"test\x00".to_vec());
+/// dump_strings(&config, PathBuf::from("strings.json"));
+///
+pub fn dump_strings<T: Config>(strings_config: &T, output: PathBuf) -> ErrorResult {
+    let output_file = File::create(output)?;
+    let vector_writer = Rc::new(RefCell::new(JsonWriter::new(output_file)));
+    _strings(strings_config, vector_writer.clone())?;
+    vector_writer.clone().borrow_mut().finish()?;
+    Ok(())
 }
