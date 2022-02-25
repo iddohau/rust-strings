@@ -5,6 +5,7 @@
 //!
 //! ## Examples:
 //! ```
+//! use std::path::PathBuf;
 //! use rust_strings::{FileConfig, BytesConfig, strings, dump_strings, Encoding};
 //!
 //! let config = FileConfig::new("/bin/ls").with_min_length(5);

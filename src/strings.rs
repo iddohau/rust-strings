@@ -201,7 +201,8 @@ fn _strings<T: Config, W: StringWriter>(
 pub fn strings<T: Config>(strings_config: &T) -> Result<Vec<(String, u64)>, Box<dyn Error>> {
     let vector_writer = Rc::new(RefCell::new(VectorWriter::new()));
     _strings(strings_config, vector_writer.clone())?;
-    Ok(vector_writer.clone().borrow_mut().get_strings())
+    let result = Ok(vector_writer.borrow_mut().get_strings());
+    result
 }
 
 /// Dump strings from binary data to json file.
@@ -218,6 +219,6 @@ pub fn dump_strings<T: Config>(strings_config: &T, output: PathBuf) -> ErrorResu
     let output_file = File::create(output)?;
     let vector_writer = Rc::new(RefCell::new(JsonWriter::new(output_file)));
     _strings(strings_config, vector_writer.clone())?;
-    vector_writer.clone().borrow_mut().finish()?;
+    vector_writer.borrow_mut().finish()?;
     Ok(())
 }
