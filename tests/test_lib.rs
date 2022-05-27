@@ -45,7 +45,7 @@ fn test_file_config() {
     let mut file = NamedTempFile::new().unwrap();
     file.write_all(b"test\x00").unwrap();
 
-    let path = file.path().to_str().unwrap();
+    let path = file.path();
     let config = FileConfig::new(path);
     let extracted = strings(&config).unwrap();
     assert_eq!(vec![(String::from("test"), 0)], extracted);

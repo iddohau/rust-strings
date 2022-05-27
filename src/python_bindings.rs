@@ -57,7 +57,7 @@ fn strings(
         .collect::<Result<Vec<RustEncoding>, _>>()?;
     let result: Result<Vec<(String, u64)>, Box<dyn Error>>;
     if let Some(file_path) = file_path {
-        let strings_config = RustFileConfig::new(file_path.to_str().unwrap())
+        let strings_config = RustFileConfig::new(&file_path)
             .with_min_length(min_length)
             .with_encodings(encodings)
             .with_buffer_size(buffer_size);
@@ -117,7 +117,7 @@ fn dump_strings(
         .collect::<Result<Vec<RustEncoding>, _>>()?;
     let result: ErrorResult;
     if let Some(file_path) = file_path {
-        let strings_config = RustFileConfig::new(file_path.to_str().unwrap())
+        let strings_config = RustFileConfig::new(&file_path)
             .with_min_length(min_length)
             .with_encodings(encodings)
             .with_buffer_size(buffer_size);

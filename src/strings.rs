@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::iter::Iterator;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::result::Result;
 
@@ -60,7 +60,7 @@ macro_rules! impl_default {
 }
 
 pub struct FileConfig<'a> {
-    pub file_path: &'a str,
+    pub file_path: &'a Path,
     pub min_length: usize,
     pub encodings: Vec<Encoding>,
     pub buffer_size: usize,
@@ -69,7 +69,7 @@ pub struct FileConfig<'a> {
 impl<'a> FileConfig<'a> {
     const DEFAULT_BUFFER_SIZE: usize = 1024 * 1024;
 
-    pub fn new(file_path: &'a str) -> Self {
+    pub fn new(file_path: &'a Path) -> Self {
         FileConfig {
             file_path,
             min_length: DEFAULT_MIN_LENGTH,
@@ -177,18 +177,19 @@ fn _strings<T: Config, W: StringWriter>(
 /// Examples:
 /// ```
 /// use rust_strings::{FileConfig, BytesConfig, strings, Encoding};
+/// use std::path::Path;
 ///
-/// let config = FileConfig::new("/bin/ls").with_min_length(5);
+/// let config = FileConfig::new(Path::new("/bin/ls")).with_min_length(5);
 /// let extracted_strings = strings(&config);
 ///
 /// // Extract utf16le strings
-/// let config = FileConfig::new("C:\\Windows\\notepad.exe")
+/// let config = FileConfig::new(Path::new("C:\\Windows\\notepad.exe"))
 ///     .with_min_length(15)
 ///     .with_encoding(Encoding::UTF16LE);
 /// let extracted_strings = strings(&config);
 ///
 /// // Extract ascii and utf16le strings
-/// let config = FileConfig::new("C:\\Windows\\notepad.exe")
+/// let config = FileConfig::new(Path::new("C:\\Windows\\notepad.exe"))
 ///     .with_min_length(15)
 ///     .with_encoding(Encoding::ASCII)
 ///     .with_encoding(Encoding::UTF16LE);

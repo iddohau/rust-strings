@@ -5,20 +5,20 @@
 //!
 //! ## Examples:
 //! ```
-//! use std::path::PathBuf;
 //! use rust_strings::{FileConfig, BytesConfig, strings, dump_strings, Encoding};
+//! use std::path::{Path, PathBuf};
 //!
-//! let config = FileConfig::new("/bin/ls").with_min_length(5);
+//! let config = FileConfig::new(Path::new("/bin/ls")).with_min_length(5);
 //! let extracted_strings = strings(&config);
 //!
 //! // Extract utf16le strings
-//! let config = FileConfig::new("C:\\Windows\\notepad.exe")
+//! let config = FileConfig::new(Path::new("C:\\Windows\\notepad.exe"))
 //!     .with_min_length(15)
 //!     .with_encoding(Encoding::UTF16LE);
 //! let extracted_strings = strings(&config);
 //!
 //! // Extract ascii and utf16le strings
-//! let config = FileConfig::new("C:\\Windows\\notepad.exe")
+//! let config = FileConfig::new(Path::new("C:\\Windows\\notepad.exe"))
 //!     .with_min_length(15)
 //!     .with_encoding(Encoding::ASCII)
 //!     .with_encoding(Encoding::UTF16LE);

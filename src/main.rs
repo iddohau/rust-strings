@@ -35,7 +35,7 @@ fn main() {
             exit(1);
         }
     };
-    let strings_config = FileConfig::new(&file_path)
+    let strings_config = FileConfig::new(path)
         .with_min_length(options.min_length)
         .with_encoding(encoding);
     let extracted_strings = strings(&strings_config).expect("Something went wrong!");
