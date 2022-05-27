@@ -24,8 +24,8 @@ path = "src/main.rs"
 required-features = ["cli"]
 
 [dependencies]
-clap = { version = "3.0.8", features = ["derive"], optional = true }
-pyo3 = { version = "0.15.1", features = ["extension-module"], optional = true }
+clap = { version = "3.1.18", features = ["derive"], optional = true }
+pyo3 = { version = "0.15.2", features = ["extension-module"], optional = true }
 
 [dev-dependencies]
 tempfile = "3.3"
