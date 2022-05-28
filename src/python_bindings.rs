@@ -37,45 +37,48 @@ impl From<EncodingNotFoundError> for PyErr {
     buffer_size = "1024 * 1024"
 )]
 #[pyo3(
-    text_signature = "(file_path: Optional[str] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
+    text_signature = "(file_path: Optional[Union[str, Path]] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
 )]
 fn strings(
+    py: Python<'_>,
     file_path: Option<PathBuf>,
     bytes: Option<Vec<u8>>,
     min_length: usize,
     encodings: Vec<&str>,
     buffer_size: usize,
 ) -> PyResult<Vec<(String, u64)>> {
-    if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
-        return Err(StringsException::new_err(
-            "You can't specify file_path and bytes",
-        ));
-    }
-    let encodings = encodings
-        .iter()
-        .map(|e| RustEncoding::from_str(e))
-        .collect::<Result<Vec<RustEncoding>, _>>()?;
-    let result: Result<Vec<(String, u64)>, Box<dyn Error>>;
-    if let Some(file_path) = file_path {
-        let strings_config = RustFileConfig::new(&file_path)
-            .with_min_length(min_length)
-            .with_encodings(encodings)
-            .with_buffer_size(buffer_size);
-        result = r_strings(&strings_config);
-    } else if let Some(bytes) = bytes {
-        let strings_config = RustBytesConfig::new(bytes)
-            .with_min_length(min_length)
-            .with_encodings(encodings);
-        result = r_strings(&strings_config);
-    } else {
-        return Err(StringsException::new_err(
-            "You must specify file_path or bytes",
-        ));
-    }
-    if let Err(error_message) = result {
-        return Err(StringsException::new_err(format!("{}", error_message)));
-    }
-    Ok(result.unwrap())
+    py.allow_threads(|| {
+        if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
+            return Err(StringsException::new_err(
+                "You can't specify file_path and bytes",
+            ));
+        }
+        let encodings = encodings
+            .iter()
+            .map(|e| RustEncoding::from_str(e))
+            .collect::<Result<Vec<RustEncoding>, _>>()?;
+        let result: Result<Vec<(String, u64)>, Box<dyn Error>>;
+        if let Some(file_path) = file_path {
+            let strings_config = RustFileConfig::new(&file_path)
+                .with_min_length(min_length)
+                .with_encodings(encodings)
+                .with_buffer_size(buffer_size);
+            result = r_strings(&strings_config);
+        } else if let Some(bytes) = bytes {
+            let strings_config = RustBytesConfig::new(bytes)
+                .with_min_length(min_length)
+                .with_encodings(encodings);
+            result = r_strings(&strings_config);
+        } else {
+            return Err(StringsException::new_err(
+                "You must specify file_path or bytes",
+            ));
+        }
+        if let Err(error_message) = result {
+            return Err(StringsException::new_err(format!("{}", error_message)));
+        }
+        Ok(result.unwrap())
+    })
 }
 
 /// Dump strings from binary file or bytes to json file.
@@ -96,9 +99,10 @@ fn strings(
     buffer_size = "1024 * 1024"
 )]
 #[pyo3(
-    text_signature = "(output_file: str, file_path: Optional[str] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> None"
+    text_signature = "(output_file: str, file_path: Optional[Union[str, Path]] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> None"
 )]
 fn dump_strings(
+    py: Python<'_>,
     output_file: PathBuf,
     file_path: Option<PathBuf>,
     bytes: Option<Vec<u8>>,
@@ -106,36 +110,38 @@ fn dump_strings(
     encodings: Vec<&str>,
     buffer_size: usize,
 ) -> PyResult<()> {
-    if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
-        return Err(StringsException::new_err(
-            "You can't specify file_path and bytes",
-        ));
-    }
-    let encodings = encodings
-        .iter()
-        .map(|e| RustEncoding::from_str(e))
-        .collect::<Result<Vec<RustEncoding>, _>>()?;
-    let result: ErrorResult;
-    if let Some(file_path) = file_path {
-        let strings_config = RustFileConfig::new(&file_path)
-            .with_min_length(min_length)
-            .with_encodings(encodings)
-            .with_buffer_size(buffer_size);
-        result = r_dump_strings(&strings_config, output_file);
-    } else if let Some(bytes) = bytes {
-        let strings_config = RustBytesConfig::new(bytes)
-            .with_min_length(min_length)
-            .with_encodings(encodings);
-        result = r_dump_strings(&strings_config, output_file);
-    } else {
-        return Err(StringsException::new_err(
-            "You must specify file_path or bytes",
-        ));
-    }
-    if let Err(error_message) = result {
-        return Err(StringsException::new_err(format!("{}", error_message)));
-    }
-    Ok(())
+    py.allow_threads(|| {
+        if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
+            return Err(StringsException::new_err(
+                "You can't specify file_path and bytes",
+            ));
+        }
+        let encodings = encodings
+            .iter()
+            .map(|e| RustEncoding::from_str(e))
+            .collect::<Result<Vec<RustEncoding>, _>>()?;
+        let result: ErrorResult;
+        if let Some(file_path) = file_path {
+            let strings_config = RustFileConfig::new(&file_path)
+                .with_min_length(min_length)
+                .with_encodings(encodings)
+                .with_buffer_size(buffer_size);
+            result = r_dump_strings(&strings_config, output_file);
+        } else if let Some(bytes) = bytes {
+            let strings_config = RustBytesConfig::new(bytes)
+                .with_min_length(min_length)
+                .with_encodings(encodings);
+            result = r_dump_strings(&strings_config, output_file);
+        } else {
+            return Err(StringsException::new_err(
+                "You must specify file_path or bytes",
+            ));
+        }
+        if let Err(error_message) = result {
+            return Err(StringsException::new_err(format!("{}", error_message)));
+        }
+        Ok(())
+    })
 }
 
 #[pymodule]
