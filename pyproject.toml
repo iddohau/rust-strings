@@ -5,7 +5,7 @@ build-backend = "maturin"
 
 [project]
 name = "rust-strings"
-version = "0.2.0"
+version = "0.3.0"
 description = "Extract strings from binary data"
 authors = [
     {email = "iddohau@gmail.com", name = "Iddo Hauschner"},
@@ -15,7 +15,7 @@ maintainers = [
 ]
 license = {file = "LICENSE.txt"}
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 homepage = "https://github.com/iddohau/rust-strings"
 repository = "https://github.com/iddohau/rust-strings"
 documentation = "https://github.com/iddohau/rust-strings"
@@ -24,7 +24,6 @@ keywords = ["strings"]
 
 classifiers = [
     "Topic :: Software Development",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -34,4 +33,4 @@ classifiers = [
 ]
 
 [dev-dependencies]
-pytest = "^6.2.5"
+pytest = "^7.1.2"
