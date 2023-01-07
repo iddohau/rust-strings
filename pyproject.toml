@@ -5,7 +5,7 @@ build-backend = "maturin"
 
 [project]
 name = "rust-strings"
-version = "0.3.0"
+version = "0.4.0"
 description = "Extract strings from binary data"
 authors = [
     {email = "iddohau@gmail.com", name = "Iddo Hauschner"},

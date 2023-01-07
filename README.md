@@ -24,7 +24,7 @@ pip install rust-strings
 
 ```bash
 [dependencies]
-rust-strings = "0.3.0"
+rust-strings = "0.4.0"
 ```
 
 ## Usage
