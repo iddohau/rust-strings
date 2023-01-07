@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=0.12,<0.13", "cffi"]
+requires = ["maturin>=0.14,<0.15", "cffi"]
 build-backend = "maturin"
 
 
@@ -28,9 +28,10 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Rust",
 ]
 
 [dev-dependencies]
-pytest = "^7.1.2"
+pytest = "^7.2.0"

@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python_version: ["3.7", "3.8", "3.9", "3.10"]
+        python_version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -28,19 +28,19 @@ jobs:
           profile: minimal
           default: true
       - name: Build wheels - x86_64
-        uses: messense/maturin-action@v1
+        uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --cargo-extra-args="--features python_bindings" --out dist
+          args: --release --features python_bindings --out dist
       - name: Install built wheel - x86_64
         run: |
           pip install ${{ env.name }} --no-index --find-links dist --force-reinstall
           pip install pytest
           pytest
       - name: Build wheels - universal2
-        uses: messense/maturin-action@v1
+        uses: PyO3/maturin-action@v1
         with:
-          args: --release --cargo-extra-args="--features python_bindings" --universal2 --out dist --no-sdist
+          args: --release --features python_bindings --universal2 --out dist --no-sdist
       - name: Install built wheel - universal2
         run: |
           pip install ${{ env.name }} --no-index --find-links dist --force-reinstall
@@ -56,7 +56,7 @@ jobs:
     strategy:
       matrix:
         target: [x64, x86]
-        python_version: ["3.7", "3.8", "3.9", "3.10"]
+        python_version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -70,10 +70,10 @@ jobs:
           profile: minimal
           default: true
       - name: Build wheels
-        uses: messense/maturin-action@v1
+        uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --cargo-extra-args="--features python_bindings" --out dist --no-sdist
+          args: --release --features python_bindings --out dist --no-sdist
       - name: Install built wheel
         run: |
           pip install ${{ env.name }} --no-index --find-links dist --force-reinstall
@@ -90,7 +90,7 @@ jobs:
     strategy:
       matrix:
         target: [x86_64, i686]
-        python_version: ["3.7", "3.8", "3.9", "3.10"]
+        python_version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -98,12 +98,12 @@ jobs:
         python-version: ${{ matrix.python_version }}
         architecture: x64
     - name: Build Wheels
-      uses: messense/maturin-action@v1
+      uses: PyO3/maturin-action@v1
       with:
         rust-toolchain: stable
         target: ${{ matrix.target }}
         manylinux: auto
-        args: --release --cargo-extra-args="--features python_bindings" --out dist --no-sdist
+        args: --release --features python_bindings --out dist --no-sdist
     - name: Install built wheel
       if: matrix.target == 'x86_64'
       run: |
@@ -126,18 +126,19 @@ jobs:
           { version: '3.8', abi: 'cp38-cp38' },
           { version: '3.9', abi: 'cp39-cp39' },
           { version: '3.10', abi: 'cp310-cp310' },
+          { version: '3.11', abi: 'cp311-cp311' },
         ]
     steps:
     - uses: actions/checkout@v2
     - name: Build Wheels
-      uses: messense/maturin-action@v1
+      uses: PyO3/maturin-action@v1
       env:
         PYO3_CROSS_LIB_DIR: /opt/python/${{ matrix.python.abi }}
       with:
         rust-toolchain: stable
         target: ${{ matrix.target }}
         manylinux: auto
-        args: --release --cargo-extra-args="--features python_bindings" --out dist --no-sdist
+        args: --release --features python_bindings --out dist --no-sdist
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -155,7 +156,7 @@ jobs:
       - name: Publish to PyPi
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        uses: messense/maturin-action@v1
+        uses: PyO3/maturin-action@v1
         with:
           command: upload
           args: --skip-existing dist/*
