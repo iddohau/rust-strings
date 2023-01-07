@@ -8,8 +8,11 @@ use std::str::FromStr;
 #[clap(version = "1.0", author = "Iddo Hauschner", name = "rust-strings")]
 struct Opts {
     /// file path to run strings on
-    #[clap(short, long)]
-    file_path: String,
+    #[clap(name = "FILE_PATH_ARG")]
+    file_path_arg: Option<String>,
+    /// file path to run strings on
+    #[clap(short, long, name = "FILE_PATH")]
+    file_path_flag: Option<String>,
     /// min length of string
     #[clap(short, long, default_value = "3")]
     min_length: usize,
@@ -20,9 +23,24 @@ struct Opts {
     offset: bool,
 }
 
+fn get_file_path(options: &Opts) -> String {
+    if matches!(options.file_path_arg, Some(_)) && matches!(options.file_path_flag, Some(_)) {
+        eprintln!("You can't specify file path as argument and as flag together");
+        exit(1);
+    }
+    let mut file_path = String::new();
+    if let Some(file_path_arg) = &options.file_path_arg {
+        file_path = file_path_arg.clone()
+    }
+    if let Some(file_path_flag) = &options.file_path_flag {
+        file_path = file_path_flag.clone()
+    }
+    file_path
+}
+
 fn main() {
     let options = Opts::parse();
-    let file_path = options.file_path;
+    let file_path = get_file_path(&options);
     let path: &Path = Path::new(&file_path);
     if !path.is_file() {
         eprintln!("File does not exists!");
