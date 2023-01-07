@@ -91,12 +91,59 @@ impl<'a> Config for FileConfig<'a> {
     where
         F: FnMut(usize, u8) -> ErrorResult,
     {
-        let file_result = File::open(&self.file_path);
+        let file_result = File::open(self.file_path);
         if let Err(err) = file_result {
             return Err(Box::new(err));
         }
         let file = file_result.unwrap();
         let buf_reader = BufReader::with_capacity(self.buffer_size, file);
+        buf_reader
+            .bytes()
+            .enumerate()
+            .try_for_each(|(i, b)| func(i, b.unwrap()))?;
+        Ok(())
+    }
+
+    impl_config!();
+}
+
+pub struct StdinConfig {
+    pub min_length: usize,
+    pub encodings: Vec<Encoding>,
+    pub buffer_size: usize,
+}
+
+impl Default for StdinConfig {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl StdinConfig {
+    const DEFAULT_BUFFER_SIZE: usize = 1024 * 1024;
+
+    pub fn new() -> Self {
+        StdinConfig {
+            min_length: DEFAULT_MIN_LENGTH,
+            encodings: vec![],
+            buffer_size: StdinConfig::DEFAULT_BUFFER_SIZE,
+        }
+    }
+
+    pub fn with_buffer_size(mut self, buffer_size: usize) -> Self {
+        self.buffer_size = buffer_size;
+        self
+    }
+
+    impl_default!();
+}
+
+impl Config for StdinConfig {
+    fn consume<F>(&self, mut func: F) -> ErrorResult
+    where
+        F: FnMut(usize, u8) -> ErrorResult,
+    {
+        let buf_reader = BufReader::with_capacity(self.buffer_size, std::io::stdin());
         buf_reader
             .bytes()
             .enumerate()

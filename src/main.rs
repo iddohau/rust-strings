@@ -1,5 +1,5 @@
 use clap::Parser;
-use rust_strings::{strings, Encoding, FileConfig};
+use rust_strings::{strings, Encoding, FileConfig, StdinConfig};
 use std::path::Path;
 use std::process::exit;
 use std::str::FromStr;
@@ -7,10 +7,10 @@ use std::str::FromStr;
 #[derive(Parser, Debug)]
 #[clap(version = "1.0", author = "Iddo Hauschner", name = "rust-strings")]
 struct Opts {
-    /// file path to run strings on
+    /// file path to run strings on, use "-" for stdin
     #[clap(name = "FILE_PATH_ARG")]
     file_path_arg: Option<String>,
-    /// file path to run strings on
+    /// file path to run strings on, use "-" for stdin
     #[clap(short, long, name = "FILE_PATH")]
     file_path_flag: Option<String>,
     /// min length of string
@@ -40,12 +40,6 @@ fn get_file_path(options: &Opts) -> String {
 
 fn main() {
     let options = Opts::parse();
-    let file_path = get_file_path(&options);
-    let path: &Path = Path::new(&file_path);
-    if !path.is_file() {
-        eprintln!("File does not exists!");
-        exit(1);
-    }
     let encoding = match Encoding::from_str(&options.encoding) {
         Ok(encoding) => encoding,
         Err(err) => {
@@ -53,10 +47,27 @@ fn main() {
             exit(1);
         }
     };
-    let strings_config = FileConfig::new(path)
-        .with_min_length(options.min_length)
-        .with_encoding(encoding);
-    let extracted_strings = strings(&strings_config).expect("Something went wrong!");
+    let file_path = get_file_path(&options);
+    let extracted_strings = match file_path == "-" {
+        true => strings(
+            &StdinConfig::new()
+                .with_min_length(options.min_length)
+                .with_encoding(encoding),
+        ),
+        false => {
+            let path: &Path = Path::new(&file_path);
+            if !path.is_file() {
+                eprintln!("File does not exists!");
+                exit(1);
+            }
+            strings(
+                &FileConfig::new(path)
+                    .with_min_length(options.min_length)
+                    .with_encoding(encoding),
+            )
+        }
+    }
+    .expect("Something went wrong!");
     for (string, offset) in extracted_strings {
         if options.offset {
             println!("{:10}: {}", offset, string);

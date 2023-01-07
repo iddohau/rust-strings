@@ -138,7 +138,7 @@ where
         if self.is_start_writing {
             self.writer.borrow_mut().write_char(c as char)?;
         } else if self.current_string.is_empty() && !self.is_start_writing {
-            if self.offset == None {
+            if self.offset.is_none() {
                 self.offset = Some(offset);
             }
             self.current_string.push(c);

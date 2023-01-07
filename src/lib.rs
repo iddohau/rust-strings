@@ -43,7 +43,7 @@ mod strings_writer;
 type ErrorResult = Result<(), Box<dyn Error>>;
 
 pub use encodings::{Encoding, EncodingNotFoundError};
-pub use strings::{dump_strings, strings, BytesConfig, Config, FileConfig};
+pub use strings::{dump_strings, strings, BytesConfig, Config, FileConfig, StdinConfig};
 
 #[cfg(feature = "python_bindings")]
 mod python_bindings;
