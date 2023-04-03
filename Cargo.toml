@@ -28,7 +28,7 @@ clap = { version = "4.1.14", features = ["derive"], optional = true }
 pyo3 = { version = "0.18.2", features = ["extension-module"], optional = true }
 
 [dev-dependencies]
-tempfile = "3.4"
+tempfile = "3.5"
 
 [features]
 python_bindings = ["pyo3"]
