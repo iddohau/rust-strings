@@ -24,7 +24,7 @@ path = "src/main.rs"
 required-features = ["cli"]
 
 [dependencies]
-clap = { version = "4.1.13", features = ["derive"], optional = true }
+clap = { version = "4.1.14", features = ["derive"], optional = true }
 pyo3 = { version = "0.18.2", features = ["extension-module"], optional = true }
 
 [dev-dependencies]
