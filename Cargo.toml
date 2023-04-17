@@ -25,7 +25,7 @@ required-features = ["cli"]
 
 [dependencies]
 clap = { version = "4.2.2", features = ["derive"], optional = true }
-pyo3 = { version = "0.18.2", features = ["extension-module"], optional = true }
+pyo3 = { version = "0.18.3", features = ["extension-module"], optional = true }
 
 [dev-dependencies]
 tempfile = "3.5"
