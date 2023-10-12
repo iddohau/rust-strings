@@ -5,7 +5,7 @@ build-backend = "maturin"
 
 [project]
 name = "rust-strings"
-version = "0.4.0"
+version = "0.5.0"
 description = "Extract strings from binary data"
 authors = [
     {email = "iddohau@gmail.com", name = "Iddo Hauschner"},
@@ -35,3 +35,7 @@ classifiers = [
 
 [dev-dependencies]
 pytest = "^7.2.0"
+
+[tool.maturin]
+profile = "release"
+features = ["python_bindings"]
