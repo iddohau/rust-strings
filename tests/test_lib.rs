@@ -10,6 +10,20 @@ fn test_bytes_config() {
 }
 
 #[test]
+fn test_extract_one_byte() {
+    let config = BytesConfig::new(b"t\x00".to_vec()).with_min_length(1);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("t"), 0)], extracted);
+}
+
+#[test]
+fn test_extract_bytes_min_length_1() {
+    let config = BytesConfig::new(b"test\x00".to_vec()).with_min_length(1);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 0)], extracted);
+}
+
+#[test]
 fn test_bytes_config_bytes_array() {
     let config = BytesConfig::new(b"test\x00".to_vec());
     let extracted = strings(&config).unwrap();

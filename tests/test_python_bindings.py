@@ -20,6 +20,16 @@ def test_bytes():
     assert extracted == [("test", 0)]
 
 
+def test_bytes_min_length_1():
+    extracted = rust_strings.strings(bytes=b"test\x00", min_length=1)
+    assert extracted == [("test", 0)]
+
+
+def test_single_byte():
+    extracted = rust_strings.strings(bytes=b"t\x00", min_length=1)
+    assert extracted == [("t", 0)]
+
+
 def test_bytes_with_offset():
     extracted = rust_strings.strings(bytes=b"\x00test")
     assert extracted == [("test", 1)]

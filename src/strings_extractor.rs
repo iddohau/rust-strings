@@ -82,15 +82,19 @@ where
     fn consume(&mut self, offset: u64, c: u8) -> ErrorResult {
         if self.is_start_writing {
             self.writer.borrow_mut().write_char(c as char)?;
-        } else if self.current_string.is_empty() && !self.is_start_writing {
-            self.offset = offset;
-            self.current_string.push(c);
         } else if self.current_string.len() == self.min_length - 1 && !self.is_start_writing {
+            // Fix case when min_length=1
+            if self.current_string.is_empty() {
+                self.offset = offset;
+            }
             self.is_start_writing = true;
             self.current_string.push(c);
             self.writer
                 .borrow_mut()
                 .start_string_consume(take(&mut self.current_string), self.offset)?;
+        } else if self.current_string.is_empty() && !self.is_start_writing {
+            self.offset = offset;
+            self.current_string.push(c);
         } else {
             self.current_string.push(c);
         }
