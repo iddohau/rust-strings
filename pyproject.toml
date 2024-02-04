@@ -5,7 +5,7 @@ build-backend = "maturin"
 
 [project]
 name = "rust-strings"
-version = "0.5.0"
+version = "0.6.0"
 description = "Extract strings from binary data"
 authors = [
     {email = "iddohau@gmail.com", name = "Iddo Hauschner"},
@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Rust",
 ]
