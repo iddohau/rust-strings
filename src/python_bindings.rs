@@ -29,13 +29,14 @@ impl From<EncodingNotFoundError> for PyErr {
 /// :return: list of tuples of string and offset
 /// :raises: raise StringsException if there is any error during string extraction
 ///          raise EncodingNotFoundException if the function got an unsupported encondings
-#[pyfunction(
-    file_path = "None",
-    bytes = "None",
-    min_length = "3",
-    encodings = "vec![\"ascii\"]",
-    buffer_size = "1024 * 1024"
-)]
+#[pyfunction()]
+#[pyo3(signature=(
+    file_path = None,
+    bytes = None,
+    min_length = 3,
+    encodings = vec!["ascii"],
+    buffer_size = 1024 * 1024
+))]
 #[pyo3(
     text_signature = "(file_path: Optional[Union[str, Path]] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> List[Tuple[str, int]]"
 )]
@@ -91,13 +92,15 @@ fn strings(
 /// :return: list of tuples of string and offset
 /// :raises: raise StringsException if there is any error during string extraction
 ///          raise EncodingNotFoundException if the function got an unsupported encondings
-#[pyfunction(
-    file_path = "None",
-    bytes = "None",
-    min_length = "3",
-    encodings = "vec![\"ascii\"]",
-    buffer_size = "1024 * 1024"
-)]
+#[pyfunction()]
+#[pyo3(signature=(
+    output_file,
+    file_path = None,
+    bytes = None,
+    min_length = 3,
+    encodings = vec!["ascii"],
+    buffer_size = 1024 * 1024
+))]
 #[pyo3(
     text_signature = "(output_file: str, file_path: Optional[Union[str, Path]] = None, bytes: Optional[bytes] = None, min_length: int = 3, encoding: List[str] = [\"ascii\"], buffer_size: int = 1024 * 1024) -> None"
 )]
