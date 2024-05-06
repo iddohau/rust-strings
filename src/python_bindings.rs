@@ -152,7 +152,10 @@ fn dump_strings(
 fn rust_strings(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(strings, m)?)?;
     m.add_function(wrap_pyfunction!(dump_strings, m)?)?;
-    m.add("StringsException", m.py().get_type_bound::<StringsException>())?;
+    m.add(
+        "StringsException",
+        m.py().get_type_bound::<StringsException>(),
+    )?;
     m.add(
         "EncodingNotFoundException",
         m.py().get_type_bound::<EncodingNotFoundException>(),

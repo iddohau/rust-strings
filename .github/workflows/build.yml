@@ -1,6 +1,6 @@
 on: push
 
-name: Rust Lint & Test, Python Test
+name: Lint & Test
 
 env:
   name: rust-strings
