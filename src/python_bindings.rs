@@ -149,13 +149,16 @@ fn dump_strings(
 
 #[pymodule]
 #[pyo3(name = "rust_strings")]
-fn rust_strings(py: Python, m: &PyModule) -> PyResult<()> {
+fn rust_strings(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(strings, m)?)?;
     m.add_function(wrap_pyfunction!(dump_strings, m)?)?;
-    m.add("StringsException", py.get_type::<StringsException>())?;
+    m.add(
+        "StringsException",
+        m.py().get_type_bound::<StringsException>(),
+    )?;
     m.add(
         "EncodingNotFoundException",
-        py.get_type::<EncodingNotFoundException>(),
+        m.py().get_type_bound::<EncodingNotFoundException>(),
     )?;
     Ok(())
 }

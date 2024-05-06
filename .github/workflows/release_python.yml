@@ -16,8 +16,8 @@ jobs:
       matrix:
         python_version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
           architecture: x64
@@ -46,7 +46,7 @@ jobs:
           pip install ${{ env.name }} --no-index --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -58,8 +58,8 @@ jobs:
         target: [x64, x86]
         python_version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
           architecture: ${{ matrix.target }}
@@ -80,7 +80,7 @@ jobs:
           pip install pytest
           pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -92,8 +92,8 @@ jobs:
         target: [x86_64, i686]
         python_version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python_version }}
         architecture: x64
@@ -111,7 +111,7 @@ jobs:
         pip install pytest
         pytest
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: wheels
         path: dist
@@ -130,7 +130,7 @@ jobs:
           { version: '3.12', abi: 'cp312-cp312' },
         ]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Build Wheels
       uses: PyO3/maturin-action@v1
       env:
@@ -141,7 +141,7 @@ jobs:
         manylinux: auto
         args: --release -i python${{ matrix.python.version }} --features python_bindings --out dist
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: wheels
         path: dist
@@ -155,7 +155,7 @@ jobs:
     - linux-cross
     - linux
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: wheels
           path: dist

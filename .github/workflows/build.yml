@@ -1,12 +1,15 @@
 on: push
 
-name: Rust Lint & Test
+name: Lint & Test
+
+env:
+  name: rust-strings
 
 jobs:
-  ci:
+  build-rust:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -34,3 +37,29 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
+
+  build-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64]
+        python_version: ["3.12"]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python_version }}
+        architecture: x64
+    - name: Build Wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        rust-toolchain: stable
+        target: ${{ matrix.target }}
+        manylinux: auto
+        args: --release -i python${{ matrix.python_version }} --features python_bindings --out dist
+    - name: Install built wheel
+      if: matrix.target == 'x86_64'
+      run: |
+        pip install ${{ env.name }} --no-index --find-links dist --force-reinstall
+        pip install pytest
+        pytest
