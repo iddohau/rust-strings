@@ -119,3 +119,13 @@ fn test_json_dump_multiple_strings() {
         String::from("[[\"test\\\"\\n\\tmore\",2],[\"more text over here\",15]]")
     );
 }
+
+#[test]
+fn test_utf16le_with_printable_prefix() {
+    // Test the bug fix: "At\x00e\x00s\x00t\x00\x00\x00" should extract "test" at offset 1
+    // The 'A' at offset 0 should be skipped because 't' at offset 1 starts a valid UTF-16LE sequence
+    let config =
+        BytesConfig::new(b"At\x00e\x00s\x00t\x00\x00\x00".to_vec()).with_encoding(Encoding::UTF16LE);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 1)], extracted);
+}

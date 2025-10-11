@@ -124,13 +124,27 @@ where
             }
             Some(is_last_char_null) => {
                 let is_char_printable = is_printable_character(c);
-                (!is_last_char_null && is_char_null) || (is_last_char_null && is_char_printable)
+                // Allow: null after non-null (normal UTF-16 pattern)
+                // OR any printable char (after null is normal, after non-null triggers reset)
+                (!is_last_char_null && is_char_null) || is_char_printable
             }
         }
     }
 
     fn consume(&mut self, offset: u64, c: u8) -> ErrorResult {
         let is_char_null = c == 0;
+
+        // Check if we have a printable char after a non-null char (need to reset)
+        if let Some(false) = self.is_last_char_null {
+            if !is_char_null && is_printable_character(c) && !self.is_start_writing {
+                self.current_string.clear();
+                self.offset = Some(offset);
+                self.current_string.push(c);
+                self.is_last_char_null = Some(false);
+                return Ok(());
+            }
+        }
+
         self.is_last_char_null = Some(is_char_null);
         if is_char_null {
             // This is here because big endian is null first
