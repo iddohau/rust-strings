@@ -28,6 +28,7 @@ pub struct Utf16Extractor<T> {
     current_string: Vec<u8>,
     offset: Option<u64>,
     is_start_writing: bool,
+    pending_byte: Option<u8>,
 }
 
 pub fn new_strings_extractor<'a, T>(
@@ -54,6 +55,7 @@ where
             current_string: Vec::with_capacity(min_length),
             offset: None,
             is_start_writing: false,
+            pending_byte: None,
         }),
         Encoding::UTF16BE => Box::new(Utf16Extractor {
             writer,
@@ -63,6 +65,7 @@ where
             current_string: Vec::with_capacity(min_length),
             offset: None,
             is_start_writing: false,
+            pending_byte: None,
         }),
     }
 }
@@ -132,42 +135,64 @@ where
     }
 
     fn consume(&mut self, offset: u64, c: u8) -> ErrorResult {
-        let is_char_null = c == 0;
+        // Use pending byte to ensure we only process complete UTF-16 pairs
+        if let Some(first_byte) = self.pending_byte {
+            let is_first_null = first_byte == 0;
+            let is_second_null = c == 0;
+            let is_first_printable = is_printable_character(first_byte);
+            let is_second_printable = is_printable_character(c);
 
-        // Check if we have a printable char after a non-null char (need to reset)
-        if let Some(false) = self.is_last_char_null {
-            if !is_char_null && is_printable_character(c) && !self.is_start_writing {
-                self.current_string.clear();
-                self.offset = Some(offset);
-                self.current_string.push(c);
-                self.is_last_char_null = Some(false);
-                return Ok(());
-            }
-        }
+            // Check if this forms a valid UTF-16 pair
+            let is_valid_pair = if self.is_big_endian {
+                // BE: null then printable
+                is_first_null && is_second_printable
+            } else {
+                // LE: printable then null
+                is_first_printable && is_second_null
+            };
 
-        self.is_last_char_null = Some(is_char_null);
-        if is_char_null {
-            // This is here because big endian is null first
-            if self.current_string.is_empty() {
-                self.offset = Some(offset);
+            if !is_valid_pair {
+                // Invalid pair - check if we should reset
+                if !self.is_start_writing && is_second_printable {
+                    // Discard the first byte and try again with the second byte as the start
+                    // This handles cases like "At\x00e..." where 'A'+'t' is invalid, but
+                    // 't'+'\x00' starts a valid UTF-16LE string "test" at the new offset
+                    self.current_string.clear();
+                    self.offset = Some(offset);
+                    self.pending_byte = Some(c);
+                    self.is_last_char_null = Some(is_second_null);
+                    return Ok(());
+                } else {
+                    // Invalid pair while writing, or second byte is not printable - stop extraction
+                    self.pending_byte = None;
+                    return Ok(());
+                }
             }
-            return Ok(());
-        }
-        if self.is_start_writing {
-            self.writer.borrow_mut().write_char(c as char)?;
-        } else if self.current_string.is_empty() && !self.is_start_writing {
+
+            // Valid pair - extract the printable byte
+            let printable_byte = if self.is_big_endian { c } else { first_byte };
+            self.pending_byte = None;
+            self.is_last_char_null = Some(is_second_null);
+
+            // Process the printable byte
+            if self.is_start_writing {
+                self.writer.borrow_mut().write_char(printable_byte as char)?;
+            } else if self.current_string.len() == self.min_length - 1 {
+                self.is_start_writing = true;
+                self.current_string.push(printable_byte);
+                self.writer
+                    .borrow_mut()
+                    .start_string_consume(take(&mut self.current_string), self.offset.unwrap())?;
+            } else {
+                self.current_string.push(printable_byte);
+            }
+        } else {
+            // No pending byte - buffer this one
             if self.offset.is_none() {
                 self.offset = Some(offset);
             }
-            self.current_string.push(c);
-        } else if self.current_string.len() == self.min_length - 1 && !self.is_start_writing {
-            self.is_start_writing = true;
-            self.current_string.push(c);
-            self.writer
-                .borrow_mut()
-                .start_string_consume(take(&mut self.current_string), self.offset.unwrap())?;
-        } else {
-            self.current_string.push(c);
+            self.pending_byte = Some(c);
+            self.is_last_char_null = Some(c == 0);
         }
         Ok(())
     }
@@ -180,6 +205,7 @@ where
         self.is_start_writing = false;
         self.offset = None;
         self.current_string.clear();
+        self.pending_byte = None;
         Ok(())
     }
 }

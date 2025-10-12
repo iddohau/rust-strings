@@ -129,3 +129,33 @@ fn test_utf16le_with_printable_prefix() {
     let extracted = strings(&config).unwrap();
     assert_eq!(vec![(String::from("test"), 1)], extracted);
 }
+
+#[test]
+fn test_utf16be_with_printable_prefix() {
+    // Test the bug fix for UTF-16BE: "A\x00t\x00e\x00s\x00t\x00\x00" should extract "test" at offset 1
+    // The 'A' at offset 0 should be skipped because '\x00t' at offset 1-2 starts a valid UTF-16BE sequence
+    let config =
+        BytesConfig::new(b"A\x00t\x00e\x00s\x00t\x00\x00".to_vec()).with_encoding(Encoding::UTF16BE);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 1)], extracted);
+}
+
+#[test]
+fn test_utf16le_with_trailing_printable() {
+    // Test UTF-16LE with trailing printable without null: "t\x00e\x00s\x00t\x00A" should extract "test" at offset 0
+    // The 'A' at the end doesn't have a trailing \x00, so it's not valid UTF-16LE and should stop the extraction
+    let config =
+        BytesConfig::new(b"t\x00e\x00s\x00t\x00A".to_vec()).with_encoding(Encoding::UTF16LE);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 0)], extracted);
+}
+
+#[test]
+fn test_utf16be_with_trailing_printable() {
+    // Test UTF-16BE with trailing printable without null: "\x00t\x00e\x00s\x00tA" should extract "test" at offset 0
+    // The 'A' at the end doesn't have a \x00 before it, so it's not valid UTF-16BE and should stop the extraction
+    let config =
+        BytesConfig::new(b"\x00t\x00e\x00s\x00tA".to_vec()).with_encoding(Encoding::UTF16BE);
+    let extracted = strings(&config).unwrap();
+    assert_eq!(vec![(String::from("test"), 0)], extracted);
+}
