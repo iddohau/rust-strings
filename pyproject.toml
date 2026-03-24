@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin==1.5.1", "cffi"]
+requires = ["maturin>=1.12,<2", "cffi"]
 build-backend = "maturin"
 
 
@@ -15,7 +15,7 @@ maintainers = [
 ]
 license = {file = "LICENSE.txt"}
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 homepage = "https://github.com/iddohau/rust-strings"
 repository = "https://github.com/iddohau/rust-strings"
 documentation = "https://github.com/iddohau/rust-strings"
@@ -24,12 +24,11 @@ keywords = ["strings"]
 
 classifiers = [
     "Topic :: Software Development",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Rust",
 ]

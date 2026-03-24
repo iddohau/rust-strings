@@ -34,7 +34,7 @@ impl From<EncodingNotFoundError> for PyErr {
     file_path = None,
     bytes = None,
     min_length = 3,
-    encodings = vec!["ascii"],
+    encodings = vec![String::from("ascii")],
     buffer_size = 1024 * 1024
 ))]
 #[pyo3(
@@ -45,10 +45,10 @@ fn strings(
     file_path: Option<PathBuf>,
     bytes: Option<Vec<u8>>,
     min_length: usize,
-    encodings: Vec<&str>,
+    encodings: Vec<String>,
     buffer_size: usize,
 ) -> PyResult<Vec<(String, u64)>> {
-    py.allow_threads(|| {
+    py.detach(|| {
         if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
             return Err(StringsException::new_err(
                 "You can't specify file_path and bytes",
@@ -98,7 +98,7 @@ fn strings(
     file_path = None,
     bytes = None,
     min_length = 3,
-    encodings = vec!["ascii"],
+    encodings = vec![String::from("ascii")],
     buffer_size = 1024 * 1024
 ))]
 #[pyo3(
@@ -110,10 +110,10 @@ fn dump_strings(
     file_path: Option<PathBuf>,
     bytes: Option<Vec<u8>>,
     min_length: usize,
-    encodings: Vec<&str>,
+    encodings: Vec<String>,
     buffer_size: usize,
 ) -> PyResult<()> {
-    py.allow_threads(|| {
+    py.detach(|| {
         if matches!(file_path, Some(_)) && matches!(bytes, Some(_)) {
             return Err(StringsException::new_err(
                 "You can't specify file_path and bytes",
@@ -154,11 +154,11 @@ fn rust_strings(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(dump_strings, m)?)?;
     m.add(
         "StringsException",
-        m.py().get_type_bound::<StringsException>(),
+        m.py().get_type::<StringsException>(),
     )?;
     m.add(
         "EncodingNotFoundException",
-        m.py().get_type_bound::<EncodingNotFoundException>(),
+        m.py().get_type::<EncodingNotFoundException>(),
     )?;
     Ok(())
 }

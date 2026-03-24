@@ -11,39 +11,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
           components: rustfmt, clippy
 
-      - uses: actions-rs/cargo@v1
-        name: build
-        with:
-          command: build
+      - name: build
+        run: cargo build
 
-      - uses: actions-rs/cargo@v1
-        name: test
-        with:
-          command: test
+      - name: test
+        run: cargo test
 
-      - uses: actions-rs/cargo@v1
-        name: fmt
-        with:
-          command: fmt
-          args: --all -- --check
+      - name: fmt
+        run: cargo fmt --all -- --check
 
-      - uses: actions-rs/cargo@v1
-        name: clippy
-        with:
-          command: clippy
-          args: -- -D warnings
+      - name: clippy
+        run: cargo clippy -- -D warnings
 
   build-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target: [x86_64]
-        python_version: ["3.12"]
+        python_version: ["3.12", "3.14"]
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5

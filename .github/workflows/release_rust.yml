@@ -12,17 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      
-      - uses: actions-rs/cargo@v1
-        name: login
-        with:
-          command: login
-          args: ${{ secrets.CRATES_TOKEN }}
+      - uses: dtolnay/rust-toolchain@stable
 
-      - uses: actions-rs/cargo@v1
-        name: publish
-        with:
-          command: publish
+      - name: login
+        run: cargo login ${{ secrets.CRATES_TOKEN }}
+
+      - name: publish
+        run: cargo publish
