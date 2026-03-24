@@ -58,3 +58,10 @@ jobs:
         run: |
           git tag "v${{ inputs.version }}"
           git push origin "v${{ inputs.version }}"
+
+      - name: Trigger release workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run release_rust.yml --ref "v${{ inputs.version }}"
+          gh workflow run release_python.yml --ref "v${{ inputs.version }}"
