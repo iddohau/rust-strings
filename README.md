@@ -1,6 +1,6 @@
 # rust-strings
 
-[![CI](https://github.com/iddohau/rust-strings/workflows/Rust%20Lint%20%26%20Test/badge.svg?branch=main)](https://github.com/iddohau/rust-strings/actions?query=branch=main)
+[![CI](https://github.com/iddohau/rust-strings/workflows/Lint%20%26%20Test/badge.svg?branch=main)](https://github.com/iddohau/rust-strings/actions?query=branch=main)
 ![License](https://img.shields.io/github/license/iddohau/rust-strings)
 ![Crates.io](https://img.shields.io/crates/v/rust-strings)
 [![PyPI](https://img.shields.io/pypi/v/rust-strings.svg)](https://pypi.org/project/rust-strings)
@@ -24,7 +24,7 @@ pip install rust-strings
 
 ```bash
 [dependencies]
-rust-strings = "0.6.0"
+rust-strings = "0.6.1"
 ```
 
 ## Usage
