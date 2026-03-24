@@ -239,7 +239,7 @@ dependencies = [
 
 [[package]]
 name = "rust-strings"
-version = "0.6.3"
+version = "0.6.4"
 dependencies = [
  "clap",
  "pyo3",
