@@ -13,7 +13,8 @@ authors = [
 maintainers = [
     {email = "iddohau@gmail.com", name = "Iddo Hauschner"},
 ]
-license = {file = "LICENSE.txt"}
+license = "MIT"
+license-files = ["LICENSE.txt"]
 readme = "README.md"
 requires-python = ">=3.10"
 homepage = "https://github.com/iddohau/rust-strings"
